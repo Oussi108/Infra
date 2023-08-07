@@ -127,7 +127,7 @@ body {
 </style>
 
 <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-<form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'login_infra' %}">
+<form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'upload' %}">
   {% csrf_token %}
   <div class="file-upload">
     <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger('click')">Add Excel</button>
