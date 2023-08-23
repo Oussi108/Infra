@@ -124,10 +124,59 @@ body {
   border: 0;
   transition: all .2s ease;
 }
+
+.custom-form {
+  width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+  text-align: center; /* Center its contents horizontally */
+}
+.custom-form .select-sheet {
+  text-align: center; /* Center its contents horizontally */
+  margin-bottom: 20px; /* Add some spacing below the select element */
+}
+.custom-form select {
+  width: 50%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: #000000;
+  font-size: 16px;
+}
+
+.custom-form select:hover {
+  border-color: #007bff;
+}
+
+.custom-form select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.custom-form input[type="submit"] {
+  width: 50%;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+.custom-form input[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
 </style>
 
 <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-<form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'upload' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+<form id="upload-form" method="post" enctype="multipart/form-data" action="">
   {% csrf_token %}
   <div class="file-upload">
     <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger('click')">Add Excel</button>
@@ -145,15 +194,30 @@ body {
       </div>
     </div>
   </div>
-  <input type="submit" value="Submit">
+  
+  <div class="custom-form">
+    <div class="select-sheet">
+      <label for="sheet-name"></label>
+      <select id="sheet-name" name="selected_sheet">
+        <option value="" disabled selected>Select a sheet</option>
+        <!-- Options for sheet names will be dynamically added here -->
+      </select>
+    </div>
+    <input type="submit" value="Submit">
+  </div>
+  
 </form>
 
 <script>
 function readFile(input) {
   const file = input.files[0];
+  const sheetSelect = document.getElementById('sheet-name');
   const imageUploadWrap = document.querySelector('.image-upload-wrap');
   const fileUploadContent = document.querySelector('.file-upload-content');
   const imageTitle = document.querySelector('.image-title');
+
+  // Clear the previous options
+  sheetSelect.innerHTML = '';
 
   if (file) {
     if (file.type === "application/vnd.ms-excel" || file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
@@ -161,12 +225,29 @@ function readFile(input) {
       imageUploadWrap.style.display = "none";
       fileUploadContent.style.display = "block";
       imageTitle.textContent = "Uploaded Excel: " + file.name;
-    } else {
+      
+      // Read sheet names using xlsx library
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = e.target.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+
+        // Populate the sheet select element
+        workbook.SheetNames.forEach(function (sheetName) {
+          const option = document.createElement('option');
+          option.value = sheetName;
+          option.textContent = sheetName;
+          sheetSelect.appendChild(option);
+        });
+      };
+      reader.readAsBinaryString(file);
+
+    }else {
       // File type is not Excel, show the uploaded image
       readURL(input);
       imageTitle.textContent = "Uploaded Image: " + file.name;
     }
-  } else {
+  }else {
     // No file selected, hide the uploaded image
     fileUploadContent.style.display = "none";
     imageUploadWrap.style.display = "block";
@@ -202,6 +283,4 @@ function removeUpload() {
 }
 </script>
 
-
-						
 {% endblock %}
