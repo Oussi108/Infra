@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
-
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate,login,logout
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -162,6 +162,7 @@ def data_visualization_view(request):
     return render(request, 'data_visualization.html', context1)
 
 @login_required(login_url="login")
+@permission_required('MainApp.can_access_employee_management')
 def Workers_managment_view(request):
     users = User.objects.all()
     groups = Group.objects.all()
@@ -169,7 +170,8 @@ def Workers_managment_view(request):
     return render(request,'workers_managment.html',context)
 @login_required(login_url="login")
 
-
+@login_required(login_url="login")
+@permission_required('MainApp.can_access_employee_management')
 
 def Workers_managment_edit_view(request, pk):
     user = get_object_or_404(User, id=pk)
@@ -206,8 +208,8 @@ def Workers_managment_edit_view(request, pk):
 
     context = {'user': user, 'groups': groups}
     return render(request, 'workerEdit.html', context)
-
-
+@login_required(login_url="login")
+@permission_required('MainApp.can_access_employee_management')
 def delete_users(request):
     if request.method == 'POST':
         user_ids_to_delete = request.GET.get('users', '').split(',')
@@ -217,12 +219,13 @@ def delete_users(request):
 
     return redirect('workers_managment')  # Redirect to the workers management page
 
-
+@login_required(login_url="login")
+@permission_required('MainApp.can_access_validation')
 def validation_page(request):
     validate = {'username':'admin2','file' : '', 'isvalid' :'notyet'}
     context = {'validate':validate}
     return render(request,'validation.html',context) 
-
+@permission_required('MainApp.can_access_employee_management')
 def add_employee(request):
     if request.method == 'POST':
         # Extract data from the form
@@ -252,7 +255,7 @@ def add_employee(request):
     groups = Group.objects.all()
     context = {'groups': groups}
     return render(request, 'workers_managment.html', context)
-
+@permission_required('MainApp.can_access_employee_management')
 def delete_user(request, pk):
     user = get_object_or_404(User, id=pk)
     if request.method == 'POST':

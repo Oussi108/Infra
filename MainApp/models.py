@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth.models import Permission
 # Create your models here.
 
 class GMTPlus1DateTimeField(models.DateTimeField):
@@ -16,3 +17,6 @@ class UploadedFile(models.Model):
 
     def __str__(self):
         return self.filename
+    
+
+
