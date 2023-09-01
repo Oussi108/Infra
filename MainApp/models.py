@@ -11,12 +11,23 @@ class GMTPlus1DateTimeField(models.DateTimeField):
         return value
     
 class UploadedFile(models.Model):
+    class ValidationStatus(models.TextChoices):
+        PENDING = 'Pending', 'Pending'
+        APPROVED = 'Approved', 'Approved'
+        REJECTED = 'Rejected', 'Rejected'
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    filename = models.CharField(max_length=255)  # Store the filename
+    filename = models.CharField(max_length=255)
     uploaded_at = GMTPlus1DateTimeField()
+    validation_status = models.CharField(
+        max_length=20,
+        choices=ValidationStatus.choices,
+        default=ValidationStatus.PENDING,
+    )
 
     def __str__(self):
         return self.filename
     
+
 
 

@@ -1,39 +1,37 @@
 
 {% extends 'Dashboard.html' %}
 
-{% block title %}
-    Data Visualization
-{% endblock %}
-
 {% block content %}
-<table class="table table-hover">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td colspan="2">Larry the Bird</td>
-      <td>@twitter</td>
-    </tr>
-  </tbody>
-</table>
+    <h2>Pending Validation Requests</h2>
+    <table class="table table-bordered">
+      <thead>
+          <tr>
+              <th>User</th>
+              <th>File Name</th>
+              <th>Uploaded At</th>
+              <th>Actions</th>
+              <th>View File</th> <!-- Added this column -->
+          </tr>
+      </thead>
+      <tbody>
+          {% for file in pending_files %}
+              <tr>
+                  <td>{{ file.user }}</td>
+                  <td>{{ file.filename }}</td>
+                  <td>{{ file.uploaded_at }}</td>
+                  <td>
+                      <a href="{% url 'approve_file' file.id %}" class="btn btn-success">Approve</a>
+                      <a href="{% url 'reject_file' file.id %}" class="btn btn-danger">Reject</a>
+                  </td>
+                  <td>
+                    <a href="{% url 'view_uploaded_file' file.filename %}" target="_blank" class="btn btn-primary">View File</a>
+                  </td>
+              </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+  
+  
+  
 {% endblock %}
 

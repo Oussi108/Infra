@@ -16,13 +16,13 @@
 {% endif %}
       <form class="login-form" method="post" action="">
       {% csrf_token %}
-        <input type="text" placeholder="username" name="username"/>
-        <input type="password" placeholder="password" name="password"/>
+      <input type="text" placeholder="Nom d'utilisateur" name="username"/>
+      <input type="password" placeholder="Mot de passe" name="password"/>
         
-        <span class="checkbox"><input type="checkbox" checked="" /> remember me</span>
+        <span class="checkbox"><input type="checkbox" checked="" /> Se souvenir de moi</span>
         
-        <button>login</button>  
-      </form>
+        <button>Se connecter</button>  
+            </form>
     </div>
   </div>
   <style>
