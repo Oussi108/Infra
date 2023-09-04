@@ -496,7 +496,6 @@ def Workers_managment_view(request):
 
 @login_required(login_url="login")
 @permission_required('MainApp.can_access_employee_management')
-
 def Workers_managment_edit_view(request, pk):
     user = get_object_or_404(User, id=pk)
     groups = Group.objects.all()
@@ -508,12 +507,17 @@ def Workers_managment_edit_view(request, pk):
         last_name = request.POST['last_name']
         new_password = request.POST['password']
         new_group_name = request.POST['role']
-
+        if(new_group_name == "admin" ):
+            is_superuser = True
+        else :
+            is_superuser = False
+                
         # Update user's information
         user.username = username
         user.email = email
         user.first_name = first_name
         user.last_name = last_name
+        user.is_superuser = is_superuser
 
         if new_password:
             user.set_password(new_password)  # Update password if provided
@@ -589,6 +593,9 @@ def add_employee(request):
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
         role = request.POST['role']  # Assuming 'role' is the name of the <select> element
+        is_superuser = False
+        if(role == "admin" ):
+            is_superuser = True
         
         # Create the new user
         user = User.objects.create_user(
@@ -596,7 +603,8 @@ def add_employee(request):
             email=email,
             password=password,
             first_name=first_name,
-            last_name=last_name
+            last_name=last_name,
+            is_superuser=is_superuser
         )
         
         # Add the user to the selected group
