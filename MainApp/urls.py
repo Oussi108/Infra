@@ -24,6 +24,9 @@ urlpatterns = [
     path('error-500/', views.error_500, name='error_500'),
     path('error-404/', views.error_404, name='error_404'),
     path('download/', views.download_filtered_df_as_excel, name='download_filtered_df_as_excel'),
+    path('uploaded-files/', views.view_uploaded_files, name='view_uploaded_files'),
+    path('all-users-history/', views.view_all_users_history, name='view_all_users_history'),
+
 
 ]
 if settings.DEBUG:

@@ -1,0 +1,42 @@
+{% extends 'Dashboard.html' %}
+
+{% block content %}
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+
+
+    <h1>All Users Upload History</h1>
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>File Name</th>
+            <th>Uploaded At</th>
+            <th>Validation Status</th>
+        </tr>
+        {% for upload in upload_history %}
+            <tr>
+                <td>{{ upload.user.username }}</td>
+                <td>{{ upload.filename }}</td>
+                <td>{{ upload.uploaded_at }}</td>
+                <td>{{ upload.get_validation_status_display }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4">No upload history available.</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    {% endblock %}

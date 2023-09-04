@@ -111,6 +111,19 @@
             <a href="{% url 'validation' %}"><span class="fa  fa-check-square-o"></span> Valider</a>
           </li>
           {% endif %}
+          
+
+          <li>
+            <a href="{% url 'view_uploaded_files' %}"><span class="fa  fa-history"></span> Histoire </a>
+          </li>
+          
+
+          {% if perms.MainApp.can_access_validation %}
+
+          <li>
+            <a href="{% url 'view_all_users_history' %}"><span class="fa  fa-inbox"></span> Logs </a>
+          </li>
+          {% endif %}
 
         </ul>
 

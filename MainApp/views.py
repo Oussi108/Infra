@@ -85,7 +85,7 @@ def download_filtered_df_as_excel(request):
 
 @login_required(login_url="login")
 def data_visualization_view(request):
-
+    '''
     # Fetch list of file names from the media directory
     media_directory = os.path.join(settings.MEDIA_ROOT, '')
     # List all files in the media directory
@@ -96,6 +96,31 @@ def data_visualization_view(request):
     context1 = {
         'files': files
     }
+    '''
+    media_directory = os.path.join(settings.MEDIA_ROOT, '')
+    user = request.user  # Get the current user
+
+    # Query the database to get all files with validation_status 'Approved'
+    approved_files = UploadedFile.objects.filter(validation_status=UploadedFile.ValidationStatus.APPROVED)
+
+    if user.groups.filter(name='Technician').exists():
+        # If the user is in the "Technician" group, only show their files
+        approved_files = approved_files.filter(user=user)
+
+    # Create a list to store approved file names (without paths)
+    approved_file_names = []
+
+    # Iterate through the approved files and extract their file names
+    for file in approved_files:
+        file_name = os.path.basename(file.filename)
+        approved_file_names.append(file_name)
+    print(approved_file_names)
+    context1 = {
+        'files': approved_file_names,
+
+    } 
+    
+    
     file_name = request.GET.get('selected_filename', '')
     if file_name:
         request.session['selected_filename'] = file_name
@@ -672,8 +697,9 @@ def Upload_view(request):
                 df.dropna(subset=[column_to_check], inplace=True)
 
                 # Save the processed DataFrame to the media directory
-                
-                processed_file_path = os.path.join(settings.MEDIA_ROOT, processed_file_name)
+                unique_filename = str(uuid.uuid4()) + "_" + processed_file_name
+
+                processed_file_path = os.path.join(settings.MEDIA_ROOT, unique_filename)
                 df.to_excel(processed_file_path, index=False)
                 
                 
@@ -684,10 +710,10 @@ def Upload_view(request):
                     validation_status = 'approved'
 
                 # Create an instance of the UploadedFile model and save to database
-                uploaded_file = UploadedFile(user=request.user, filename=excel_file_name, validation_status=validation_status)
+                uploaded_file = UploadedFile(user=request.user, filename=unique_filename, validation_status=validation_status)
                 uploaded_file.save()
                 messages.success(request, "Le fichier Excel ' " + processed_file_name + " ' a été ajouté avec succès")
-                fs.delete(excel_file_name)
+                fs.delete(unique_filename)
                 return redirect('Upload')
             
             else:
@@ -713,7 +739,9 @@ def Upload_view(request):
                 
                 # Save the processed DataFrame to the media directory
                 
-                processed_file_path = os.path.join(settings.MEDIA_ROOT, processed_file_name)
+                unique_filename = str(uuid.uuid4()) + "_" + processed_file_name
+
+                processed_file_path = os.path.join(settings.MEDIA_ROOT, unique_filename)
                 df.to_excel(processed_file_path, index=False)
                 
                 if request.user.groups.filter(name='Technician').exists():
@@ -722,7 +750,7 @@ def Upload_view(request):
                     validation_status = 'approved'
 
                 # Create an instance of the UploadedFile model and save to database
-                uploaded_file = UploadedFile(user=request.user, filename=excel_file_name, validation_status=validation_status)
+                uploaded_file = UploadedFile(user=request.user, filename=unique_filename, validation_status=validation_status)
                 uploaded_file.save()
                 # Optionally, you can return the processed_file_path for further use
                 # Clear the stored file name from the session
@@ -780,3 +808,27 @@ def logout_user(request):
     return redirect("login")
     
 
+
+@login_required
+
+def view_uploaded_files(request):
+    user = request.user  # Get the current user
+
+    # Query the database to get all files uploaded by the user
+    uploaded_files = UploadedFile.objects.filter(user=user)
+
+    context = {
+        'uploaded_files': uploaded_files,
+    }
+
+    return render(request, 'histoy_files.html', context)
+@login_required
+def view_all_users_history(request):
+    # Query the database to get the upload history for all users
+    upload_history = UploadedFile.objects.all()
+
+    context = {
+        'upload_history': upload_history,
+    }
+
+    return render(request, 'all_users_history.html', context)
