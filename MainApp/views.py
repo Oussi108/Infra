@@ -122,8 +122,10 @@ def data_visualization_view(request):
     
     
     file_name = request.GET.get('selected_filename', '')
-    if file_name:
+    written_year = request.GET.get('written_year', '')
+    if file_name and written_year:
         request.session['selected_filename'] = file_name
+        request.session['written_year'] = written_year
         file_path = os.path.join(media_directory, file_name)
         # Perform operations on the file (e.g., read data from Excel and process it).
         df = pd.read_excel(file_path)
@@ -143,7 +145,8 @@ def data_visualization_view(request):
         messages.success(request, "Fichier séléctionner avec succée !")
         return render(request, 'data_visualization.html', context)
     filename = request.session.get('selected_filename', '')
-    if filename:
+    year = request.session.get('written_year', '')
+    if filename and year:
 
         file_path = os.path.join(media_directory, filename)
         # Perform operations on the file (e.g., read data from Excel and process it).
@@ -169,13 +172,7 @@ def data_visualization_view(request):
             messages.error(request, "Veuillez choisir un fichier puis la DPETL ...")
             del request.session['selected_filename']
             return redirect('data_visualization')
-
-        # Search for a year with 4 consecutive digits not surrounded by any other digits
-        year_pattern = re.compile(r'\D(\d{4})\D')
-        match = year_pattern.search(filename)
-        year = match.group(1) if match else None
-
-        
+            
         # Construct the column name based on the selected year
         isu_column_name = f'ISU {str(year)[2:]}'
         # Remove rows with NaN values in the specific column
@@ -445,7 +442,7 @@ def data_visualization_view(request):
         context2 = {
             'filtre1': filtre1,
             'filtre': filtre,
-            'files': files,
+            'files': approved_file_names,
             'filename': filename,
             'year': year,
             'plot_svg': plot_svg,
