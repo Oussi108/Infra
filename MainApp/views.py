@@ -553,7 +553,7 @@ def delete_users(request):
 def approve_file(request, file_id):
     if request.user.groups.filter(name='Admin').exists():
         file = get_object_or_404(UploadedFile, id=file_id)
-        file.validation_status  = 'approved'
+        file.validation_status  =  UploadedFile.ValidationStatus.APPROVED
         file.save()
         messages.success(request, f"File '{file.filename}' has been approved.")
     return redirect('validation')
@@ -562,7 +562,7 @@ def approve_file(request, file_id):
 def reject_file(request, file_id):
     if request.user.groups.filter(name='Admin').exists():
         file = get_object_or_404(UploadedFile, id=file_id)
-        file.validation_status  = 'rejected'
+        file.validation_status  = UploadedFile.ValidationStatus.REJECTED
         file.save()
         messages.success(request, f"File '{file.filename}' has been rejected.")
     return redirect('validation')
@@ -573,7 +573,7 @@ def reject_file(request, file_id):
 @permission_required('MainApp.can_access_validation')
 def validation(request):
     if request.user.groups.filter(name='Admin').exists():
-        pending_files = UploadedFile.objects.filter(validation_status='pending')
+        pending_files = UploadedFile.objects.filter(validation_status=UploadedFile.ValidationStatus.APPROVED)
         return render(request, 'validation.html', {'pending_files': pending_files})
     else:
         return render(request, 'access_denied.html')
@@ -710,9 +710,9 @@ def Upload_view(request):
                 
                 # Create an instance of the UploadedFile model
                 if request.user.groups.filter(name='Technician').exists():
-                    validation_status = 'pending'
+                    validation_status = UploadedFile.ValidationStatus.PENDING
                 else:
-                    validation_status = 'approved'
+                    validation_status = UploadedFile.ValidationStatus.APPROVED
 
                 # Create an instance of the UploadedFile model and save to database
                 uploaded_file = UploadedFile(user=request.user, filename=unique_filename, validation_status=validation_status)
@@ -750,9 +750,9 @@ def Upload_view(request):
                 df.to_excel(processed_file_path, index=False)
                 
                 if request.user.groups.filter(name='Technician').exists():
-                    validation_status = 'pending'
+                    validation_status = UploadedFile.ValidationStatus.PENDING
                 else:
-                    validation_status = 'approved'
+                    validation_status = UploadedFile.ValidationStatus.APPROVED
 
                 # Create an instance of the UploadedFile model and save to database
                 uploaded_file = UploadedFile(user=request.user, filename=unique_filename, validation_status=validation_status)
@@ -801,7 +801,7 @@ def view_uploaded_file(request, file_name):
 @login_required(login_url='login')
 def pending_files(request):
     if request.user.groups.filter(name='Technician').exists():
-        pending_files = UploadedFile.objects.filter(user=request.user, validation_status='pending')
+        pending_files = UploadedFile.objects.filter(user=request.user, validation_status=UploadedFile.ValidationStatus.APPROVED)
         return render(request, 'pending_files.html', {'pending_files': pending_files})
     else:
         return render(request, 'access_denied.html')  # Redirect other user groups to an access denied page
